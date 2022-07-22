@@ -143,8 +143,8 @@ void reconnect() {
       Serial.println("connected");
       client.subscribe("subLed1"); // led 토픽 구독
       client.subscribe("subLed2"); // led 토픽 구독
-      client.subscribe("subLed2"); // led 토픽 구독
-      client.subscribe("subLed2"); // led 토픽 구독
+      client.subscribe("subLed3"); // led 토픽 구독
+      client.subscribe("subLed4"); // led 토픽 구독
     } 
     else 
     {
