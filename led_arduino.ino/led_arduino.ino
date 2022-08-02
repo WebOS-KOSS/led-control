@@ -28,11 +28,6 @@ int previous3 = LOW;
 int ledPin3 = 14;
 int swPin3 = 12;
 
-int ledState4 = LOW;
-int previous4 = LOW;
-int ledPin4 = 1;
-int swPin4 = 15;
-
 //----------------------------------------------------------------
 
 void setup_wifi() {
@@ -74,7 +69,6 @@ void reconnect() {
       client.subscribe("subLed1"); // led 토픽 구독
       client.subscribe("subLed2"); // led 토픽 구독
       client.subscribe("subLed3"); // led 토픽 구독
-      client.subscribe("subLed4"); // led 토픽 구독
     } 
     else 
     {
@@ -105,9 +99,6 @@ void callback(char* topic, byte* payload, unsigned int uLen) {
   }
   else if((String)topic == "subLed3"){
     ledTemp = ledPin3;
-  }
-  else if((String)topic == "subLed4"){
-    ledTemp = ledPin4;
   }
   Serial.print(ledTemp);
   Serial.print("Subscribe ");
@@ -150,7 +141,6 @@ void setup(){
   ledSet(ledPin1, swPin1);
   ledSet(ledPin2, swPin2);
   ledSet(ledPin3, swPin3);
-  ledSet(ledPin4, swPin4);
   
   client.setServer(mqtt_server, 1883); //mqtt 서버와 연결(ip, 1883)
   client.setCallback(callback); //callback 함수 세팅
@@ -164,6 +154,5 @@ void loop(){
   previous1 = ledControl(ledPin1, swPin1, previous1, digitalRead(ledPin1), "led1");
   previous2 = ledControl(ledPin2, swPin2, previous2, digitalRead(ledPin2), "led2");
   previous3 = ledControl(ledPin3, swPin3, previous3, digitalRead(ledPin3), "led3");
-  previous4 = ledControl(ledPin4, swPin4, previous4, digitalRead(ledPin4), "led4");
   delay(10);
 }
