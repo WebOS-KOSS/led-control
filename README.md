@@ -13,4 +13,5 @@
 3. Arduino IDE -> 툴 -> 보드 -> ESP8266 Boards(2.7.4) -> Generic ESP8266 Module 사용
 4. Arduino IDE -> 스케치 -> 라이브러리 포함하기 -> 라이브러리 관리... -> PubSubClient by Nick O'Leary의 2.8.0 버전을 설치
 
-### 하드웨어 
+### 하드웨어 설정
+
