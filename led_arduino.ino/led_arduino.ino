@@ -64,7 +64,7 @@ void reconnect() {
     Serial.print("Attempting MQTT connection...");
     if (client.connect(clientName))
     {
-      //연결 성공
+      //연결 성공e default branch is considered the “base” branch in your repository, against which all pull requests and code commits are automatically made, unless you specify a different branch
       Serial.println("connected");
       client.subscribe("subLed1"); // led 토픽 구독
       client.subscribe("subLed2"); // led 토픽 구독
