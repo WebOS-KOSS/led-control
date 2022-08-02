@@ -156,3 +156,4 @@ void loop(){
   previous3 = ledControl(ledPin3, swPin3, previous3, digitalRead(ledPin3), "led3");
   delay(10);
 }
+ 
