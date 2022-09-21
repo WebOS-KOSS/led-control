@@ -1,11 +1,15 @@
 #include <ESP8266WiFi.h> // Wifi 라이브러리 추가
 #include <PubSubClient.h> // MQTT client 라이브러리 
 
+#define ledPin1 4
+#define ledPin2 16
+#define ledPin3 14
+
 //----------------------------------------------------------------
 
 const char* ssid = "wifi"; //사용하는 Wifi 이름
-const char* password = "12345678"; // 비밀번호
-const char* mqtt_server = "192.168.232.218"; // MQTT broker ip
+const char* password = "41948536"; // 비밀번호
+const char* mqtt_server = "43.200.4.58"; // MQTT broker ip
 const char* clientName = "ledController"; // client 이름
 
 WiFiClient espClient; // 인터넷과 연결할 수 있는 client 생성
@@ -15,17 +19,17 @@ PubSubClient client(espClient); // 해당 client를 mqtt client로 사용할 수
 
 int ledState1 = LOW;
 int previous1 = LOW;
-int ledPin1 = 4;
+//int ledPin1 = 4;
 int swPin1 = 0;
 
 int ledState2 = LOW;
 int previous2 = LOW;
-int ledPin2 = 16;
+//int ledPin2 = 16;
 int swPin2 = 5;
 
 int ledState3 = LOW;
 int previous3 = LOW;
-int ledPin3 = 14;
+//int ledPin3 = 14;
 int swPin3 = 12;
 
 //----------------------------------------------------------------
@@ -66,9 +70,7 @@ void reconnect() {
     {
       //연결 성공e default branch is considered the “base” branch in your repository, against which all pull requests and code commits are automatically made, unless you specify a different branch
       Serial.println("connected");
-      client.subscribe("subLed1"); // led 토픽 구독
-      client.subscribe("subLed2"); // led 토픽 구독
-      client.subscribe("subLed3"); // led 토픽 구독
+      client.subscribe("control/led"); // led 토픽 구독
     } 
     else 
     {
@@ -84,51 +86,47 @@ void reconnect() {
 //-------------------------------------------------------------------
 
 void callback(char* topic, byte* payload, unsigned int uLen) {
-  char pBuffer[uLen+1];
+  char message[uLen];
   int i;
-  int ledTemp = -1;
-  for(i = 0; i < uLen; i++)
-  {
-    pBuffer[i]=(char)payload[i];
-  }
-  if((String)topic == "subLed1"){
-    ledTemp = ledPin1;
-  }
-  else if((String)topic == "subLed2"){
-    ledTemp = ledPin2;
-  }
-  else if((String)topic == "subLed3"){
-    ledTemp = ledPin3;
-  }
-  Serial.print(ledTemp);
+  for(i = 0; i < uLen; i++){message[i]=(char)payload[i];}
+
   Serial.print("Subscribe ");
   Serial.print(topic);
   Serial.print(": ");
-  Serial.println(pBuffer); // 1 or 0
-  if(pBuffer[0]=='1')
-  {
-    digitalWrite(ledTemp, HIGH); // 1이면 led 켜기
-  }
-  else if(pBuffer[0]=='0')
-  {
-    digitalWrite(ledTemp, LOW); // 0면 led 끄기
-  } 
+  Serial.println(message); // 1 or 0
+
+  sscanf(message, "{led1: %d, led2: %d, led3: %d}", &ledState1, &ledState2, &ledState3);
+  Serial.println(message);
+  Serial.println(ledState1);
+  Serial.println(ledState2);
+  Serial.println(ledState3);
 }
 
 //------------------------------------------------------------------
 
-int ledControl(int ledPin, int swPin, int previous, int ledState, char* ledNum){
+int ledControl(int ledPin, int swPin, int previous){
   int reading = digitalRead(swPin);
   if(reading == HIGH && previous == LOW){//버튼 인식
-    ledState = 1-ledState;
-    char ledMessage[13] = ""; // 문자열을 위한 공간 마련
-    sprintf(ledMessage, "{\"ledState\":%d}", ledState);
-    Serial.print("Publish message: ");
-    Serial.print(ledMessage);
-    Serial.println(ledNum);
-    client.publish(ledNum, ledMessage); // 만든 문자열을 mqtt 서버에 publish *토픽에 숫자 XXX
+    
+    switch (ledPin) {
+      case ledPin1:
+        ledState1 = 1-ledState1;
+        break;
+      case ledPin2:
+        ledState2 = 1-ledState3;
+        break;
+      case ledPin3:
+        ledState3 = 1-ledState3;
+        break;
     }
-  digitalWrite(ledPin, ledState);
+      
+    char* ledMessage= "";
+    Serial.println("test");
+    sprintf(ledMessage, "{\"ledState1\":%d, \"ledState1\":%d, \"ledState3\":%d}", ledState1, ledState2, ledState3);
+    Serial.print("Publish message: ");
+    Serial.println(ledMessage);
+    client.publish("status/led", ledMessage); // 만든 문자열을 mqtt 서버에 publish *토픽에 숫자 XXX
+  }
   return reading;
 }
 
@@ -151,9 +149,11 @@ void setup(){
 void loop(){
   if (!client.connected()){reconnect();} //mqtt 연결이 안되어있다면 다시 연결
   client.loop(); //연결을 계속해서 유지하고 들어오는 메시지를 확인할 수 있도록 함
-  previous1 = ledControl(ledPin1, swPin1, previous1, digitalRead(ledPin1), "led1");
-  previous2 = ledControl(ledPin2, swPin2, previous2, digitalRead(ledPin2), "led2");
-  previous3 = ledControl(ledPin3, swPin3, previous3, digitalRead(ledPin3), "led3");
+  previous1 = ledControl(ledPin1, swPin1, previous1);
+  previous2 = ledControl(ledPin2, swPin2, previous2);
+  previous3 = ledControl(ledPin3, swPin3, previous3);
+  digitalWrite(ledPin1, ledState1);
+  digitalWrite(ledPin2, ledState2);
+  digitalWrite(ledPin3, ledState3);
   delay(10);
 }
- 
