@@ -7,8 +7,8 @@
 
 //----------------------------------------------------------------
 
-const char* ssid = "wifi"; //사용하는 Wifi 이름
-const char* password = "41948536"; // 비밀번호
+const char* ssid = "koss"; //사용하는 Wifi 이름
+const char* password = "a123456789!"; // 비밀번호
 const char* mqtt_server = "43.200.4.58"; // MQTT broker ip
 const char* clientName = "ledController"; // client 이름
 
@@ -95,7 +95,7 @@ void callback(char* topic, byte* payload, unsigned int uLen) {
   Serial.print(": ");
   Serial.println(message); // 1 or 0
 
-  sscanf(message, "{led1: %d, led2: %d, led3: %d}", &ledState1, &ledState2, &ledState3);
+  sscanf(message, "{ledState1: %d, ledState2: %d, ledState3: %d}", &ledState1, &ledState2, &ledState3);
   Serial.println(message);
   Serial.println(ledState1);
   Serial.println(ledState2);
@@ -120,9 +120,8 @@ int ledControl(int ledPin, int swPin, int previous){
         break;
     }
       
-    char* ledMessage= "";
-    Serial.println("test");
-    sprintf(ledMessage, "{\"ledState1\":%d, \"ledState1\":%d, \"ledState3\":%d}", ledState1, ledState2, ledState3);
+    char ledMessage[100] = "";
+    sprintf(ledMessage, "{'control': 'led', 'led': {'ledState1':%d, 'ledState2':%d, 'ledState3\":%d}}", ledState1, ledState2, ledState3);
     Serial.print("Publish message: ");
     Serial.println(ledMessage);
     client.publish("status/led", ledMessage); // 만든 문자열을 mqtt 서버에 publish *토픽에 숫자 XXX
